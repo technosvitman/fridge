@@ -41,8 +41,12 @@ class fridge extends eqLogic {
   */
   public static function cron() {
     //todo : update from equipment and apply algorithm  
-    foreach (self::byType('fridg', true) as $fridg) { 
-        continue; 
+    foreach (self::byType('fridge', true) as $fridge) { 
+		$cmd = $fridge->getCmd(null, 'refresh');
+		if (!is_object($cmd)) {
+			continue; 
+		}
+		$cmd->execCmd();
     }
   }
 
@@ -126,6 +130,17 @@ class fridge extends eqLogic {
         $power->setSubType('numeric');
         $power->setTemplate('dashboard','tile');
         $power->save();
+		
+		$refresh = $this->getCmd(null, 'refresh');
+		if (!is_object($refresh)) {
+			$refresh = new fridgeCmd();
+			$refresh->setName(__('Rafraichir', __FILE__));
+		}
+		$refresh->setEqLogic_id($this->getId());
+		$refresh->setLogicalId('refresh');
+		$refresh->setType('action');
+		$refresh->setSubType('other');
+		$refresh->save();
   }
 
   // Fonction exécutée automatiquement avant la suppression de l'équipement
@@ -170,6 +185,15 @@ class fridge extends eqLogic {
   */
 
   /*     * **********************Getteur Setteur*************************** */
+  
+  public function getTemperature() {
+		$probe = $this->getConfiguration("probe", "");
+		if( $probe == "") {
+			return 0;
+		}
+		$probe = cmd::byValue($probe)[0];
+		return $probe->execCmd();
+	}
 
 }
 
@@ -194,6 +218,9 @@ class fridgeCmd extends cmd {
 
   // Exécution d'une commande
   public function execute($_options = array()) {
+	  $eqlogic = $this->getEqLogic();
+	  $temp = $eqlogic->getTemperature();
+	  $eqlogic->checkAndUpdateCmd('temperature', $temp);
   }
 
   /*     * **********************Getteur Setteur*************************** */
