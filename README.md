@@ -1,0 +1,2 @@
+# fridge
+Jeedom fridge plugin
