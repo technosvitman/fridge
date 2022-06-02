@@ -132,7 +132,8 @@ $eqLogics = eqLogic::byType($plugin->getId());
 									<sup><i class="fas fa-question-circle tooltips" title="{{Renseignez le paramètre n°1 de l'équipement}}"></i></sup>
 								</label>
 								<div class="col-sm-6">
-									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="param1" placeholder="{{Paramètre n°1}}">
+									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="probe" placeholder="Temperature">
+									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="output" placeholder="Thermostat output">
 								</div>
 							</div>
 							<div class="form-group">

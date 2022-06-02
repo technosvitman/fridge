@@ -39,6 +39,12 @@ class fridge extends eqLogic {
   * Fonction exécutée automatiquement toutes les minutes par Jeedom
   public static function cron() {}
   */
+  public static function cron() {
+    //todo : update from equipment and apply algorithm  
+    foreach (self::byType('fridg', true) as $fridg) { 
+        continue; 
+    }
+  }
 
   /*
   * Fonction exécutée automatiquement toutes les 5 minutes par Jeedom
@@ -90,33 +96,36 @@ class fridge extends eqLogic {
 
   // Fonction exécutée automatiquement avant la sauvegarde (création ou mise à jour) de l'équipement
   public function preSave() {
+        $this->setDisplay("width","200px");
   }
 
   // Fonction exécutée automatiquement après la sauvegarde (création ou mise à jour) de l'équipement
   public function postSave() {
-      $temp = $this->getCmd(null, 'temperature');
-      if (!is_object($temp)) {
+        $temp = $this->getCmd(null, 'temperature');
+        if (!is_object($temp)) {
         $temp = new fridgeCmd();
         $temp->setName(__('Temperature', __FILE__));
-      }
-      $temp->setLogicalId('temperature');
-      $temp->setEqLogic_id($this->getId());
-      $temp->setType('info');
-      $temp->setUnite('°C');
-      $temp->setSubType('numeric');
-      $temp->save();
-      
-      $power = $this->getCmd(null, 'power');
-      if (!is_object($power)) {
+        }
+        $temp->setLogicalId('temperature');
+        $temp->setEqLogic_id($this->getId());
+        $temp->setType('info');
+        $temp->setUnite('°C');
+        $temp->setSubType('numeric');
+        $temp->setTemplate('dashboard','tile');
+        $temp->save();
+
+        $power = $this->getCmd(null, 'power');
+        if (!is_object($power)) {
         $power = new fridgeCmd();
         $power->setName(__('Power', __FILE__));
-      }
-      $power->setLogicalId('power');
-      $power->setEqLogic_id($this->getId());
-      $power->setType('info');
-      $temp->setUnite('%');
-      $power->setSubType('numeric');
-      $power->save();
+        }
+        $power->setLogicalId('power');
+        $power->setEqLogic_id($this->getId());
+        $power->setType('info');
+        $power->setUnite('%');
+        $power->setSubType('numeric');
+        $power->setTemplate('dashboard','tile');
+        $power->save();
   }
 
   // Fonction exécutée automatiquement avant la suppression de l'équipement
