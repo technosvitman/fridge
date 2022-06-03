@@ -20,7 +20,6 @@ require_once __DIR__  . '/../../../../core/php/core.inc.php';
 
 class fridge extends eqLogic {
   /*     * *************************Attributs****************************** */
-
   /*
   * Permet de définir les possibilités de personnalisation du widget (en cas d'utilisation de la fonction 'toHtml' par exemple)
   * Tableau multidimensionnel - exemple: array('custom' => true, 'custom::layout' => false)
@@ -40,13 +39,12 @@ class fridge extends eqLogic {
   public static function cron() {}
   */
   public static function cron() {
-    //todo : update from equipment and apply algorithm  
     foreach (self::byType('fridge', true) as $fridge) { 
 		$cmd = $fridge->getCmd(null, 'refresh');
 		if (!is_object($cmd)) {
 			continue; 
 		}
-		$cmd->execCmd();
+		$cmd->execCmd();		
     }
   }
 
@@ -130,17 +128,57 @@ class fridge extends eqLogic {
         $power->setSubType('numeric');
         $power->setTemplate('dashboard','tile');
         $power->save();
+
+        $output = $this->getCmd(null, 'output');
+        if (!is_object($output)) {
+        $output = new fridgeCmd();
+        $output->setName(__('Output', __FILE__));
+        }
+        $output->setLogicalId('output');
+        $output->setEqLogic_id($this->getId());
+        $output->setType('info');
+        $output->setSubType('binary');
+        $temp->setTemplate('dashboard','tmplicon');
+        $output->save();
+
+        $temp = $this->getCmd(null, 'thermostat');
+        if (!is_object($temp)) {
+        $temp = new fridgeCmd();
+        $temp->setName(__('Thermostat', __FILE__));
+        }
+        $temp->setLogicalId('thermostat');
+        $temp->setEqLogic_id($this->getId());
+        $temp->setType('action');
+        $temp->setUnite('°C');
+		$temp->setSubType('slider');
+        $temp->setTemplate('dashboard','tile');
+        $temp->save();
+		
+        $target = $this->getCmd(null, 'target');
+        if (!is_object($target)) {
+        $target = new fridgeCmd();
+        $target->setName(__('Target', __FILE__));
+        }
+        $target->setLogicalId('target');
+        $target->setEqLogic_id($this->getId());
+        $target->setType('info');
+        $target->setUnite('°C');
+        $target->setSubType('numeric');
+        $target->setTemplate('dashboard','tile');
+        $target->save();
 		
 		$refresh = $this->getCmd(null, 'refresh');
 		if (!is_object($refresh)) {
 			$refresh = new fridgeCmd();
-			$refresh->setName(__('Rafraichir', __FILE__));
+			$refresh->setName(__('Refresh', __FILE__));
 		}
 		$refresh->setEqLogic_id($this->getId());
 		$refresh->setLogicalId('refresh');
 		$refresh->setType('action');
 		$refresh->setSubType('other');
 		$refresh->save();
+		
+		$this->time_counter=0;
   }
 
   // Fonction exécutée automatiquement avant la suppression de l'équipement
@@ -191,10 +229,62 @@ class fridge extends eqLogic {
 		if( $probe == "") {
 			return 0;
 		}
-		$probe = cmd::byValue($probe)[0];
+		$probe = cmd::byString($probe);
 		return $probe->execCmd();
 	}
-
+  
+  public function computeOutput()
+	{
+		$temperature = $this->getCmd(null, 'temperature')->execCmd();
+		$thermostat = $this->getCmd(null, 'target');
+		$target = $thermostat->execCmd();
+		$power = $this->getCmd(null, 'power');
+		$pw = $power->execCmd();
+		$t=time();
+		$t /= 60;
+		$t %= 10;
+		if(($t==0 || $pw==0) && $temperature >= ($target+0.1))
+		{
+			$t=0;//to force start
+			if($temperature > ($target + 1))
+			{	
+				$pw = 80;					
+			}
+			elseif($temperature > ($target + 0.3))
+			{
+				$pw = 50;					
+			}
+			else
+			{				
+				$pw = 20;	
+			}
+			$this->checkAndUpdateCmd('power', $pw);
+		}
+			
+		if($temperature < ($target-0.1))
+		{
+			$pw = 0;	
+			$this->checkAndUpdateCmd('power', $pw);		
+		}
+		$enable = $t < ($pw * (10 / 100));
+		$this->checkAndUpdateCmd('output', $enable);
+		$out_relay = "";
+		if($enable)
+		{
+			$out_relay = $this->getConfiguration("output_on", "");	
+		}
+		else
+		{
+			$out_relay = $this->getConfiguration("output_off", "");
+		}
+		if( $out_relay != "") {
+			$out_relay = cmd::byString($out_relay);
+			if (is_object($out_relay))
+			{
+				$out_relay->execCmd();			
+			}
+		}
+	}
 }
 
 class fridgeCmd extends cmd {
@@ -215,12 +305,25 @@ class fridgeCmd extends cmd {
     return true;
   }
   */
+  public function dontRemoveCmd() {
+    return true;
+  }
 
   // Exécution d'une commande
   public function execute($_options = array()) {
 	  $eqlogic = $this->getEqLogic();
-	  $temp = $eqlogic->getTemperature();
-	  $eqlogic->checkAndUpdateCmd('temperature', $temp);
+	  switch ($this->getLogicalId()) {
+		case 'refresh':
+			  $temp = $eqlogic->getTemperature();
+			  $eqlogic->checkAndUpdateCmd('temperature', $temp);
+			  $eqlogic->computeOutput();
+			  break;
+		case 'thermostat':
+			  $eqlogic->checkAndUpdateCmd('target', $_options['slider']);
+			  break;
+		default:
+			break;
+	  }
   }
 
   /*     * **********************Getteur Setteur*************************** */

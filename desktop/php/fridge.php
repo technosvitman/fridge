@@ -132,15 +132,44 @@ $eqLogics = eqLogic::byType($plugin->getId());
 									<sup><i class="fas fa-question-circle tooltips" title="{{Inside temperature probe}}"></i></sup>
 								</label>
 								<div class="col-sm-6">
-									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="probe" placeholder="Temperature">
+									<div class="input-group">
+										<input type="text" class="eqLogicAttr form-control roundedLeft tooltipstered" data-l1key="configuration" data-l2key="probe"  data-concat="1" placeholder="Temperature">
+										<span class="input-group-btn">
+											<a class="btn btn-default listCmdInfo roundedRight">
+												<i class="fas fa-list-alt"></i>
+											</a>
+										</span>
+									</div>
 								</div>
 							</div>
 							<div class="form-group">
-								<label class="col-sm-4 control-label">{{Thermostat output}}
-									<sup><i class="fas fa-question-circle tooltips" title="{{Thermostat output relay control}}"></i></sup>
+								<label class="col-sm-4 control-label">{{Thermostat output on}}
+									<sup><i class="fas fa-question-circle tooltips" title="{{Thermostat output relay control on}}"></i></sup>
 								</label>
 								<div class="col-sm-6">
-									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="output" placeholder="output">
+									<div class="input-group">
+										<input type="text" class="eqLogicAttr form-control roundedLeft tooltipstered" data-l1key="configuration" data-l2key="output_on"  data-concat="1" placeholder="output_on">
+										<span class="input-group-btn">
+											<a class="btn btn-default listCmdAction roundedRight">
+												<i class="fas fa-list-alt"></i>
+											</a>
+										</span>
+									</div>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">{{Thermostat output off}}
+									<sup><i class="fas fa-question-circle tooltips" title="{{Thermostat output relay control off}}"></i></sup>
+								</label>
+								<div class="col-sm-6">
+									<div class="input-group">
+										<input type="text" class="eqLogicAttr form-control tooltips roundedLeft tooltipstered" data-l1key="configuration" data-l2key="output_off"  data-concat="1" placeholder="output_off">
+										<span class="input-group-btn">
+											<a class="btn btn-default listCmdAction roundedRight">
+												<i class="fas fa-list-alt"></i>
+											</a>
+										</span>
+									</div>
 								</div>
 							</div>
 							<!-- Exemple de champ de saisie du cron d'auto-actualisation avec assistant -->
