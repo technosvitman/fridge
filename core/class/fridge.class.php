@@ -33,6 +33,22 @@ class fridge extends eqLogic {
   */
 
   /*     * ***********************Methode static*************************** */
+  
+  public static function pull($_options) {
+		$fridge = fridge::byId($_options['fridge']);
+		if (!is_object($fridge)) {
+			$cron = cron::byClassAndFunction('fridge', 'pull', $_options);
+			if (is_object($cron)) {
+				$cron->remove();
+			}
+			throw new Exception('Fridge not found : ' . $_options['fridge'] . '. Task removed');
+		}
+		
+		$temp = $fridge->getTemperature();
+		$fridge->computeOutput($temp);
+		
+		$thermostat->getCmd(null, 'temperature')->event(jeedom::evaluateExpression($thermostat->getConfiguration('temperature_indoor')));
+  }
 
   /*
   * Fonction exécutée automatiquement toutes les minutes par Jeedom
@@ -44,7 +60,7 @@ class fridge extends eqLogic {
 		if (!is_object($cmd)) {
 			continue; 
 		}
-		$cmd->execCmd();		
+		$cmd->execCmd();
     }
   }
 
@@ -177,8 +193,6 @@ class fridge extends eqLogic {
 		$refresh->setType('action');
 		$refresh->setSubType('other');
 		$refresh->save();
-		
-		$this->time_counter=0;
   }
 
   // Fonction exécutée automatiquement avant la suppression de l'équipement
@@ -233,9 +247,9 @@ class fridge extends eqLogic {
 		return $probe->execCmd();
 	}
   
-  public function computeOutput()
+  public function computeOutput($temperature)
 	{
-		$temperature = $this->getCmd(null, 'temperature')->execCmd();
+		$this->checkAndUpdateCmd('temperature',$temperature);
 		$thermostat = $this->getCmd(null, 'target');
 		$target = $thermostat->execCmd();
 		$power = $this->getCmd(null, 'power');
@@ -314,10 +328,10 @@ class fridgeCmd extends cmd {
 	  $eqlogic = $this->getEqLogic();
 	  switch ($this->getLogicalId()) {
 		case 'refresh':
-			  $temp = $eqlogic->getTemperature();
-			  $eqlogic->checkAndUpdateCmd('temperature', $temp);
-			  $eqlogic->computeOutput();
-			  break;
+			$temp = $eqlogic->getTemperature();
+			$eqlogic->computeOutput($temp);			  
+			$this->event(jeedom::evaluateExpression($eqlogic->getConfiguration('probe')));
+			break;
 		case 'thermostat':
 			  $eqlogic->checkAndUpdateCmd('target', $_options['slider']);
 			  break;

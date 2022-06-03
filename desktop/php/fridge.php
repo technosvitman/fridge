@@ -133,9 +133,9 @@ $eqLogics = eqLogic::byType($plugin->getId());
 								</label>
 								<div class="col-sm-6">
 									<div class="input-group">
-										<input type="text" class="eqLogicAttr form-control roundedLeft tooltipstered" data-l1key="configuration" data-l2key="probe"  data-concat="1" placeholder="Temperature">
+										<input type="text" class="eqLogicAttr form-control input-sm tooltipstered" data-l1key="configuration" data-l2key="probe"  data-concat="1" placeholder="Temperature">
 										<span class="input-group-btn">
-											<a class="btn btn-default listCmdInfo roundedRight">
+											<a class="btn btn-default btn-sm cursor listCmdAction roundedRight">
 												<i class="fas fa-list-alt"></i>
 											</a>
 										</span>
@@ -148,9 +148,9 @@ $eqLogics = eqLogic::byType($plugin->getId());
 								</label>
 								<div class="col-sm-6">
 									<div class="input-group">
-										<input type="text" class="eqLogicAttr form-control roundedLeft tooltipstered" data-l1key="configuration" data-l2key="output_on"  data-concat="1" placeholder="output_on">
+										<input type="text" class="eqLogicAttr form-control input-sm roundedLeft tooltipstered" data-l1key="configuration" data-l2key="output_on"  data-concat="1" placeholder="output_on">
 										<span class="input-group-btn">
-											<a class="btn btn-default listCmdAction roundedRight">
+											<a class="btn btn-default btn-sm cursor listCmdAction roundedRight">
 												<i class="fas fa-list-alt"></i>
 											</a>
 										</span>
@@ -163,9 +163,9 @@ $eqLogics = eqLogic::byType($plugin->getId());
 								</label>
 								<div class="col-sm-6">
 									<div class="input-group">
-										<input type="text" class="eqLogicAttr form-control tooltips roundedLeft tooltipstered" data-l1key="configuration" data-l2key="output_off"  data-concat="1" placeholder="output_off">
+										<input type="text" class="eqLogicAttr form-control input-sm roundedLeft tooltipstered" data-l1key="configuration" data-l2key="output_off"  data-concat="1" placeholder="output_off">
 										<span class="input-group-btn">
-											<a class="btn btn-default listCmdAction roundedRight">
+											<a class="btn btn-default btn-sm cursor listCmdAction roundedRight">
 												<i class="fas fa-list-alt"></i>
 											</a>
 										</span>
