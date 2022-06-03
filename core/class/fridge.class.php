@@ -33,22 +33,6 @@ class fridge extends eqLogic {
   */
 
   /*     * ***********************Methode static*************************** */
-  
-  public static function pull($_options) {
-		$fridge = fridge::byId($_options['fridge']);
-		if (!is_object($fridge)) {
-			$cron = cron::byClassAndFunction('fridge', 'pull', $_options);
-			if (is_object($cron)) {
-				$cron->remove();
-			}
-			throw new Exception('Fridge not found : ' . $_options['fridge'] . '. Task removed');
-		}
-		
-		$temp = $fridge->getTemperature();
-		$fridge->computeOutput($temp);
-		
-		$thermostat->getCmd(null, 'temperature')->event(jeedom::evaluateExpression($thermostat->getConfiguration('temperature_indoor')));
-  }
 
   /*
   * Fonction exécutée automatiquement toutes les minutes par Jeedom
@@ -131,6 +115,19 @@ class fridge extends eqLogic {
         $temp->setSubType('numeric');
         $temp->setTemplate('dashboard','tile');
         $temp->save();
+		
+        $target = $this->getCmd(null, 'target');
+        if (!is_object($target)) {
+        $target = new fridgeCmd();
+        $target->setName(__('Target', __FILE__));
+        }
+        $target->setLogicalId('target');
+        $target->setEqLogic_id($this->getId());
+        $target->setType('info');
+        $target->setUnite('°C');
+        $target->setSubType('numeric');
+        $target->setTemplate('dashboard','tile');
+        $target->save();
 
         $power = $this->getCmd(null, 'power');
         if (!is_object($power)) {
@@ -169,19 +166,6 @@ class fridge extends eqLogic {
 		$temp->setSubType('slider');
         $temp->setTemplate('dashboard','tile');
         $temp->save();
-		
-        $target = $this->getCmd(null, 'target');
-        if (!is_object($target)) {
-        $target = new fridgeCmd();
-        $target->setName(__('Target', __FILE__));
-        }
-        $target->setLogicalId('target');
-        $target->setEqLogic_id($this->getId());
-        $target->setType('info');
-        $target->setUnite('°C');
-        $target->setSubType('numeric');
-        $target->setTemplate('dashboard','tile');
-        $target->save();
 		
 		$refresh = $this->getCmd(null, 'refresh');
 		if (!is_object($refresh)) {
